@@ -102,12 +102,7 @@ def compact_memory(
     """Compact older messages without changing caller-owned state."""
     older_messages = select_messages_to_compact(state, threshold, keep_recent)
     if not older_messages:
-        return MemoryState(
-            messages=tuple(state.messages),
-            summary=state.summary,
-            preferences=copy.deepcopy(state.preferences),
-            unresolved_tasks=tuple(copy.deepcopy(state.unresolved_tasks)),
-        )
+        return state
 
     summary_input = build_summary_input(state.summary, older_messages)
     raw_summary = summarizer(summary_input)

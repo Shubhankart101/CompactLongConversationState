@@ -138,11 +138,7 @@ class TestCompactMemory:
 
         new_state = compact_memory(state, fake_summarizer, threshold=5, keep_recent=2)
         assert not called
-        assert len(new_state.messages) == 5
-        assert new_state.messages == state.messages
-        assert new_state.summary == state.summary
-        assert new_state.preferences == state.preferences
-        assert new_state.unresolved_tasks == state.unresolved_tasks
+        assert new_state is state
 
     def test_no_compaction_below_threshold(self):
         state = make_state(3)
@@ -155,7 +151,7 @@ class TestCompactMemory:
 
         new_state = compact_memory(state, fake_summarizer, threshold=5, keep_recent=2)
         assert not called
-        assert len(new_state.messages) == 3
+        assert new_state is state
 
     def test_compaction_called_exactly_once(self):
         state = make_state(7, preferences={"subject": "math"}, tasks=("task A",))
@@ -198,14 +194,13 @@ class TestCompactMemory:
         state.preferences["nested"]["key"] = "another_mutation"
         assert new_state.preferences["nested"]["key"] == "mutated"
 
-    def test_immutability_on_no_compaction(self):
+    def test_state_identity_on_no_compaction(self):
         initial_prefs = {"nested": {"key": "val"}}
         state = make_state(3, preferences=initial_prefs)
 
         new_state = compact_memory(state, lambda inp: "summary", threshold=5, keep_recent=2)
 
-        new_state.preferences["nested"]["key"] = "mutated"
-        assert state.preferences["nested"]["key"] == "val"
+        assert new_state is state
 
     def test_invalid_summary_outputs(self):
         state = make_state(7)
